@@ -1,0 +1,7 @@
+Machine learning is a subset of artificial intelligence that provides systems the ability to automatically learn and improve from experience without being explicitly programmed. The main aim is to allow the computers learn automatically so that human intervention or assistance is not required. 
+
+Within machine learning, deep learning has emerged as a powerful technique by utilizing neural networks with multiple layers. Deep learning algorithms attempt to simulate the behavior of the human brain—albeit far from matching its ability—allowing systems to cluster data and make predictions with incredible accuracy. 
+
+These techniques are widely used for tasks such as image and speech recognition, autonomous vehicles, medical diagnosis, and natural language processing. In the recent years, the combination of large data availability and increased computational power have led to rapid advances in the field. As a result, research and industry applications are expanding rapidly.
+
+Ethical considerations are also an important aspect. Issues such as data privacy, algorithmic bias, and the transparency of decision-making in complex models are being discussed widely in the AI community. In conclusion, the proliferation of machine learning and deep learning across various domains signals a transformative period in computer science and human society at large.

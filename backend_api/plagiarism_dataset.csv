@@ -1,0 +1,26 @@
+Original,Submission,Similarity,Label
+Machine learning is a subset of artificial intelligence.,Machine learning is a subset of artificial intelligence.,1.0000000000000002,1
+The sky is blue and beautiful.,The sky is blue and beautiful.,1.0000000000000002,1
+Machine learning is fascinating and complex.,Machine learning is fascinating and quite complex.,0.615218690896332,1
+Python is a great programming language for data science.,Python is an amazing language for data science programming.,0.46975676801152594,1
+Data science involves statistics and machine learning.,Data science requires statistics and machine learning knowledge.,0.5070299872061633,1
+The quick brown fox jumps over the fence.,The rapid brown fox leaps over the fence.,0.288253784039277,1
+Artificial intelligence is evolving rapidly.,AI technology is advancing very rapidly.,0.07780894359285004,1
+Deep learning uses neural networks.,Neural networks are used in deep learning.,0.5031026124151314,1
+Natural language processing is a complex field.,NLP is a very complex field of study.,0.23577033983032977,1
+Computer vision analyzes and processes images.,Image analysis uses computer vision techniques.,0.17952265829918895,1
+Algorithms are fundamental to computer science.,Algorithms are fundamental to computing.,0.3446421410380548,1
+Big data requires advanced processing techniques.,Big data needs advanced processing methods.,0.3779132184330249,1
+Cloud computing provides scalable infrastructure.,Cloud computing offers scalable solutions.,0.288253784039277,1
+Cybersecurity protects against digital attacks.,Cybersecurity defends against digital threats.,0.16839750037215276,1
+Blockchain technology enables secure transactions.,Blockchain enables transactions that are secure.,0.3408242166238352,1
+Machine learning is fun.,I like eating pizza for dinner.,0.0,0
+Python is cool.,Java is another programming language.,0.0,0
+Weather is nice today.,Apples are very tasty fruits.,0.0,0
+I enjoy reading books.,The car needs an oil change.,0.0,0
+Coffee tastes great.,Mountains are very high.,0.0,0
+Music is relaxing.,Cooking requires practice and patience.,0.0,0
+Exercise is healthy.,Painting walls takes time and effort.,0.0,0
+Trees provide oxygen.,Mathematics involves numbers and equations.,0.0,0
+Ocean waves are powerful.,Basketball is a popular sport.,0.0,0
+Stars shine at night.,Gardening needs water and sunlight.,0.0,0

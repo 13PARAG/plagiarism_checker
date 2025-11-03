@@ -1,0 +1,54 @@
+services:
+  backend:
+    build:
+      context: ./backend_api
+      dockerfile: Dockerfile
+    container_name: plagiarism-checker-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./backend_api:/app
+    networks:
+      - plagiarism-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend_app
+      dockerfile: Dockerfile
+    container_name: plagiarism-checker-frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://backend:5000
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ENABLECORS=false
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - plagiarism-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  plagiarism-network:
+    driver: bridge
+    name: plagiarism-network
