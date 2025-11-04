@@ -659,7 +659,7 @@ mark {
 """, unsafe_allow_html=True)
 
 # CONFIGURATION
-API_URL = os.environ.get("API_URL", "APIURL=https://plagiarism-checker-ukpr.onrender.com")
+API_URL = os.environ.get("API_URL", "https://plagiarism-checker-ukpr.onrender.com")
 REQUEST_TIMEOUT = 120
 
 # HELPER FUNCTIONS
