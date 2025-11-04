@@ -24,5 +24,5 @@ ENV PYTHONUNBUFFERED=1
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:5000/ || exit 1
 
-CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "--workers", "2", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "app_enhanced:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:10000", "app_enhanced:app"]
 

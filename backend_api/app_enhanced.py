@@ -1395,7 +1395,7 @@
 
 
 
-
+print("==== APP ENHANCED.PY BOOTSTRAP OK ====")
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from utils import calculate_cosine_similarity, highlight_matching_text
