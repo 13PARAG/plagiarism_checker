@@ -84,7 +84,6 @@
 
 
 
-
 import logging
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -155,4 +154,3 @@ def check_plagiarism(text1, text2=''):
     else:
         # Optionally, implement internet check or return 0
         return 0.0
-
