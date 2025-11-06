@@ -298,51 +298,38 @@ def telegram_webhook():
     chat_id = None
     reply = None
 
-    # Handle message contents from Telegram update
     if 'message' in data:
         chat_id = data['message']['chat']['id']
 
-        # If a document file uploaded
+        # Document upload
         if 'document' in data['message']:
             doc = data['message']['document']
             file_id = doc['file_id']
-
-            # Get file path from Telegram
             resp = requests.get(f"https://api.telegram.org/bot{token}/getFile?file_id={file_id}")
             file_path = resp.json()['result']['file_path']
-
-            # Download file from Telegram
             file_url = f"https://api.telegram.org/file/bot{token}/{file_path}"
             file_bytes = requests.get(file_url).content
 
             temp_ext = os.path.splitext(doc['file_name'])[1].lower()
-
             if temp_ext not in ['.txt', '.pdf', '.docx']:
                 reply = "❌ Unsupported file format. Use TXT, PDF, or DOCX."
             elif len(file_bytes) > 16 * 1024 * 1024:
                 reply = "❌ File too large (max 16MB)."
             else:
-                # Save temp file
+                # Save to temp and directly check
                 with tempfile.NamedTemporaryFile(delete=False, suffix=temp_ext) as temp_file:
                     temp_file.write(file_bytes)
                     temp_path = temp_file.name
-
-                # Call your existing /api/check-document endpoint
-                files = {'file': (doc['file_name'], open(temp_path, 'rb'))}
-                api_resp = requests.post(
-                    f"{request.url_root.rstrip('/')}/api/check-document",
-                    files=files,
-                    timeout=30
-                )
+                with open(temp_path, "rb") as f:
+                    text, _ = extract_text_from_file(f, doc['file_name'])
                 os.unlink(temp_path)
-
-                if api_resp.ok:
-                    result = api_resp.json()
-                    reply = f"🔍 Similarity: {result.get('similarity_score')}%\nStatus: {result.get('status')}\n{result.get('analysis')}"
-                else:
-                    reply = "❌ Error analysing document. Please try another file."
-
-        # If simple text message sent
+                similarity_score = check_plagiarism(text)
+                reply = (
+                    f"🔍 Similarity: {similarity_score}%\n"
+                    "Status: Complete\n"
+                    "Document analyzed successfully"
+                )
+        # Plain text message
         elif 'text' in data['message']:
             user_text = data['message']['text']
             if user_text.strip().lower() == '/start':
@@ -350,19 +337,13 @@ def telegram_webhook():
             elif len(user_text) < 50:
                 reply = "⚠️ Text too short (minimum 50 characters required)."
             else:
-                # Call your existing /api/check-text endpoint
-                api_resp = requests.post(
-                    f"{request.url_root.rstrip('/')}/api/check-text",
-                    json={'text': user_text},
-                    timeout=15
+                similarity_score = check_plagiarism(user_text)
+                reply = (
+                    f"🔍 Similarity: {similarity_score}%\n"
+                    "Status: Complete\n"
+                    "Text analyzed successfully"
                 )
-                if api_resp.ok:
-                    result = api_resp.json()
-                    reply = f"🔍 Similarity: {result.get('similarity_score')}%\nStatus: {result.get('status')}\n{result.get('analysis')}"
-                else:
-                    reply = "❌ Error analysing text. Please try again later."
-    
-    # Send reply to Telegram user
+
     if chat_id and reply:
         requests.post(send_url, json={
             "chat_id": chat_id,
