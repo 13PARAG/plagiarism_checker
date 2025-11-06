@@ -285,6 +285,91 @@ def load_model():
         logger.error(f"❌ Error loading model: {str(e)}")
 load_model()
 
+
+@app.route('/telegram-webhook', methods=['POST'])
+def telegram_webhook():
+    data = request.get_json(force=True)
+    if not data:
+        return 'No data', 400
+
+    token = os.environ.get('TELEGRAM_BOT_TOKEN')
+    send_url = f"https://api.telegram.org/bot{token}/sendMessage"
+    chat_id = None
+    reply = None
+
+    # Handle message contents from Telegram update
+    if 'message' in data:
+        chat_id = data['message']['chat']['id']
+
+        # If a document file uploaded
+        if 'document' in data['message']:
+            doc = data['message']['document']
+            file_id = doc['file_id']
+
+            # Get file path from Telegram
+            resp = requests.get(f"https://api.telegram.org/bot{token}/getFile?file_id={file_id}")
+            file_path = resp.json()['result']['file_path']
+
+            # Download file from Telegram
+            file_url = f"https://api.telegram.org/file/bot{token}/{file_path}"
+            file_bytes = requests.get(file_url).content
+
+            temp_ext = os.path.splitext(doc['file_name'])[1].lower()
+
+            if temp_ext not in ['.txt', '.pdf', '.docx']:
+                reply = "❌ Unsupported file format. Use TXT, PDF, or DOCX."
+            elif len(file_bytes) > 16 * 1024 * 1024:
+                reply = "❌ File too large (max 16MB)."
+            else:
+                # Save temp file
+                with tempfile.NamedTemporaryFile(delete=False, suffix=temp_ext) as temp_file:
+                    temp_file.write(file_bytes)
+                    temp_path = temp_file.name
+
+                # Call your existing /api/check-document endpoint
+                files = {'file': (doc['file_name'], open(temp_path, 'rb'))}
+                api_resp = requests.post(
+                    f"{request.url_root.rstrip('/')}/api/check-document",
+                    files=files,
+                    timeout=30
+                )
+                os.unlink(temp_path)
+
+                if api_resp.ok:
+                    result = api_resp.json()
+                    reply = f"🔍 Similarity: {result.get('similarity_score')}%\nStatus: {result.get('status')}\n{result.get('analysis')}"
+                else:
+                    reply = "❌ Error analysing document. Please try another file."
+
+        # If simple text message sent
+        elif 'text' in data['message']:
+            user_text = data['message']['text']
+            if user_text.strip().lower() == '/start':
+                reply = "👋 Welcome to Professional Plagiarism Checker Bot!\nSend me a document (TXT/PDF/DOCX) or paste text to check for plagiarism."
+            elif len(user_text) < 50:
+                reply = "⚠️ Text too short (minimum 50 characters required)."
+            else:
+                # Call your existing /api/check-text endpoint
+                api_resp = requests.post(
+                    f"{request.url_root.rstrip('/')}/api/check-text",
+                    json={'text': user_text},
+                    timeout=15
+                )
+                if api_resp.ok:
+                    result = api_resp.json()
+                    reply = f"🔍 Similarity: {result.get('similarity_score')}%\nStatus: {result.get('status')}\n{result.get('analysis')}"
+                else:
+                    reply = "❌ Error analysing text. Please try again later."
+    
+    # Send reply to Telegram user
+    if chat_id and reply:
+        requests.post(send_url, json={
+            "chat_id": chat_id,
+            "text": reply
+        })
+
+    return 'OK', 200
+
 @app.route("/api/status", methods=["GET"])
 def api_status():
     try:
