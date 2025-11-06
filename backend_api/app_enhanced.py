@@ -247,7 +247,6 @@
 
 
 
-
 print("==== APP ENHANCED.PY BOOTSTRAP OK ====")
 
 from flask import Flask, request, jsonify, send_file
@@ -286,7 +285,6 @@ def load_model():
         logger.error(f"❌ Error loading model: {str(e)}")
 load_model()
 
-# Utility: Health check for Telegram bot or monitoring
 @app.route('/api/status', methods=['GET'])
 def api_status():
     try:
@@ -306,7 +304,6 @@ def api_status():
         logger.error(f"Status check error: {e}")
         return jsonify({'status': 'Error', 'message': str(e)}), 500
 
-# Telegram: Single document check endpoint (file upload)
 @app.route('/api/check-document', methods=['POST'])
 def check_document():
     try:
@@ -319,7 +316,7 @@ def check_document():
             temp_path = temp.name
         file_ext = os.path.splitext(file.filename)[1].lower()
         text = extract_text(temp_path, file_ext)
-        similarity_score = check_plagiarism(text)  # Replace with your ML logic if needed
+        similarity_score = check_plagiarism(text)  # Calls wrapper in utils.py
         result = {
             'similarity_score': similarity_score,
             'status': 'Complete',
@@ -333,7 +330,6 @@ def check_document():
         logger.error(f"Document check error: {e}")
         return jsonify({'error': str(e)}), 500
 
-# Telegram: Text snippet check endpoint
 @app.route('/api/check-text', methods=['POST'])
 def check_text():
     try:
@@ -342,7 +338,7 @@ def check_text():
             return jsonify({'error': 'No text provided'}), 400
         text = data['text']
         threshold = data.get('threshold', 50)
-        similarity_score = check_plagiarism(text)  # Replace with your ML logic if needed
+        similarity_score = check_plagiarism(text)  # Calls wrapper in utils.py
         result = {
             'similarity_score': similarity_score,
             'status': 'Complete',
@@ -354,7 +350,6 @@ def check_text():
         logger.error(f"Text check error: {e}")
         return jsonify({'error': str(e)}), 500
 
-# Home/Root endpoint
 @app.route("/", methods=["GET"])
 def home():
     return jsonify({
@@ -370,7 +365,6 @@ def home():
         }
     }), 200
 
-# Configuration status endpoint
 @app.route("/config_status", methods=["GET"])
 def config_status():
     is_configured = validate_credentials()
@@ -380,9 +374,8 @@ def config_status():
         "model_loaded": model is not None
     }), 200
 
-# Local document comparison (frontend/normal usage, not for Telegram)
 @app.route("/check", methods=["POST"])
-def check_plagiarism():
+def check_plagiarism_endpoint():
     logger.info("📋 LOCAL DOCUMENT COMPARISON")
     try:
         if model is None:
@@ -419,7 +412,6 @@ def check_plagiarism():
         logger.error(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
-# Internet plagiarism check (Google API)
 @app.route("/check_internet", methods=["POST"])
 def check_internet_plagiarism():
     logger.info("🌐 INTERNET PLAGIARISM CHECK")
@@ -445,7 +437,6 @@ def check_internet_plagiarism():
         logger.error(f"❌ Error: {str(e)}")
         return jsonify({"error": str(e), "status": "processing_error"}), 500
 
-# Generate professional PDF report
 @app.route("/generate_professional_pdf", methods=["POST"])
 def generate_professional_pdf():
     logger.info("📄 PROFESSIONAL PDF GENERATION")
@@ -468,7 +459,6 @@ def generate_professional_pdf():
         logger.error(traceback.format_exc())
         return jsonify({"error": f"PDF generation error: {str(e)}"}), 500
 
-# Error handlers
 @app.errorhandler(413)
 def request_entity_too_large(error):
     return jsonify({"error": "File too large (max 16MB)"}), 413
@@ -482,6 +472,7 @@ def internal_error(error):
     logger.error(f"❌ Internal error: {str(error)}")
     return jsonify({"error": "Internal server error"}), 500
 
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     print("\n" + "=" * 80)
@@ -493,8 +484,8 @@ if __name__ == "__main__":
     print(f"📂 File Support: TXT, PDF, DOCX (up to 16MB)")
     print(f"📄 Professional PDF: ✓ Enabled (Color-coded, Academic Format)\n")
     print("📡 ENDPOINTS:")
-    print(f"   POST {port}/check                   - Compare documents")
-    print(f"   POST {port}/check_internet          - Internet search")
+    print(f"   POST {port}/check             - Compare documents")
+    print(f"   POST {port}/check_internet      - Internet search")
     print(f"   POST {port}/generate_professional_pdf - Professional report ⭐")
     print("=" * 80 + "\n")
     app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
