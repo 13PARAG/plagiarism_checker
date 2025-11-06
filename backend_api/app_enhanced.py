@@ -255,6 +255,7 @@ from utils import calculate_cosine_similarity, highlight_matching_text, check_pl
 from google_search_integration import compare_with_internet_sources, validate_credentials
 from file_handler import extract_text_from_file, validate_file, get_file_type_from_name
 from professional_pdf_generator import generate_professional_plagiarism_report
+import requests
 import joblib
 import os
 import logging
